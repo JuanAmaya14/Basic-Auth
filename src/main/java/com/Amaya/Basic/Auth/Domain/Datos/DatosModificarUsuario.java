@@ -2,7 +2,7 @@ package com.Amaya.Basic.Auth.Domain.Datos;
 
 import jakarta.validation.constraints.NotNull;
 
-public record DatosModificarUsuario (
+public record DatosModificarUsuario(
 
         @NotNull
         long id,
@@ -10,5 +10,5 @@ public record DatosModificarUsuario (
         String nombre,
 
         String clave
-){
+) {
 }

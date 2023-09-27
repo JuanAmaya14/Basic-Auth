@@ -2,13 +2,16 @@ package com.Amaya.Basic.Auth.Controller;
 
 import com.Amaya.Basic.Auth.Domain.Datos.DatosListadoUsuario;
 import com.Amaya.Basic.Auth.Domain.Datos.DatosModificarUsuario;
+import com.Amaya.Basic.Auth.Domain.Datos.DatosRegistroUsuario;
 import com.Amaya.Basic.Auth.Domain.Datos.DatosRespuestaUsuario;
 import com.Amaya.Basic.Auth.Domain.Usuario;
 import com.Amaya.Basic.Auth.Repositortios.UsuarioRepository;
-import com.Amaya.Basic.Auth.Domain.Datos.DatosRegistroUsuario;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -45,9 +48,9 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public ResponseEntity ListarUsuarios() {
+    public ResponseEntity<Page<DatosListadoUsuario>> ListarUsuarios(@PageableDefault(size = 20) Pageable paginacion) {
 
-        return ResponseEntity.ok(usuarioRepository.findAll());
+        return ResponseEntity.ok(usuarioRepository.findAll(paginacion).map(DatosListadoUsuario::new));
 
     }
 
@@ -56,7 +59,7 @@ public class UsuarioController {
 
         Usuario usuario = usuarioRepository.getReferenceById(id);
 
-        DatosListadoUsuario datosListadoUsuario = new DatosListadoUsuario(usuario.getNombre(),
+        DatosListadoUsuario datosListadoUsuario = new DatosListadoUsuario(usuario.getId(), usuario.getNombre(),
                 usuario.getClave());
 
         return ResponseEntity.ok(datosListadoUsuario);

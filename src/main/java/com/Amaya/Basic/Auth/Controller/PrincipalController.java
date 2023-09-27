@@ -10,14 +10,14 @@ public class PrincipalController {
 
 
     @GetMapping
-    public String publico(){
+    public String publico() {
 
         return "Hola mundo";
 
     }
 
     @GetMapping("/admin")
-    public String admin(){
+    public String admin() {
 
         return "Hola admin";
 
