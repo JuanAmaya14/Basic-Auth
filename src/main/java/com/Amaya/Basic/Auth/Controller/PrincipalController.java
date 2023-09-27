@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PrincipalController {
 
 
-    @GetMapping("/")
+    @GetMapping
     public String publico(){
 
         return "Hola mundo";
@@ -20,13 +20,6 @@ public class PrincipalController {
     public String admin(){
 
         return "Hola admin";
-
-    }
-
-    @GetMapping("/user")
-    public String user(){
-
-        return "Hola user";
 
     }
 

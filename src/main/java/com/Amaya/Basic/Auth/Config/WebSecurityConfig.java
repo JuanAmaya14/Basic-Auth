@@ -1,19 +1,23 @@
 package com.Amaya.Basic.Auth.Config;
 
+import com.Amaya.Basic.Auth.Domain.Usuario;
+import com.Amaya.Basic.Auth.Repositortios.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-
-import javax.sql.DataSource;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -21,32 +25,49 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
+    @Autowired
+    private UserDetailsService userDetailsService;
+
+    @Bean
+    public DaoAuthenticationProvider authProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((authz) -> authz
                         .requestMatchers(HttpMethod.GET, "/").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/user").hasRole("USER")
-                        .requestMatchers(HttpMethod.GET, "/admin").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/usuario/registrar").permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(withDefaults());
         return http.build();
     }
 
-    @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails user = User.withDefaultPasswordEncoder()
-                .username("amaya")
-                .password("12345")
-                .roles("ADMIN")
-                .build();
-        UserDetails user1 = User.withDefaultPasswordEncoder()
-                .username("perez")
-                .password("12345")
-                .roles("USER")
-                .build();
+//    @Bean
+//    public InMemoryUserDetailsManager userDetailsService() {
+//
+//        UserDetails user = User.builder()
+//                .username("amaya")
+//                .password(passwordEncoder().encode("12345"))
+//                .roles("ADMIN")
+//                .build();
+//        return new InMemoryUserDetailsManager(user);
+//    }
 
-        return new InMemoryUserDetailsManager(user, user1);
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return userDetailsService;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
